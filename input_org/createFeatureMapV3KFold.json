@@ -1,0 +1,18 @@
+{
+    "data_directory" : "$HOME/Desktop/data/Abdomen",
+    "modelweight_directory" : "$HOME/Desktop/data/modelweight/Abdomen/with_pad/512-512-8-1/resampled/mask",
+    "save_directory" : "$HOME/Desktop/data/patch/Abdomen/with_pad/feature_map/48-48-32/resampled/mask/v2", 
+    "kfold_list" : ["fold1", "fold2", "fold3"],
+    "image_patch_size" : "48-48-32",
+    "label_patch_size" : "44-44-28",
+    "padding_size" : "10-10-10",
+    "overlap" : 1,
+    "image_name" : "imaging_resampled.nii.gz",
+    "mask_name" : "mask_resampled.mha",
+    "model_name" : "latest.pkl",
+    "is_label" : "No",
+    "num_array" : ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"],
+    "gpu_ids" : "0",
+    "log_file" : "fail/createFeatureMapV2KFold.txt"
+}
+

@@ -1,0 +1,18 @@
+{
+    "data_directory" : "$HOME/Desktop/data/Abdomen",
+    "modelweight_directory" : "$HOME/Desktop/data/modelweight/Abdomen/with_pad/512-512-8-1/original/mask",
+    "save_directory" : "$HOME/Desktop/data/patch/Abdomen/with_pad/feature_map/48-48-32/original/mask", 
+    "image_name" : "imaging.nii.gz",
+    "mask_name" : "mask.mha",
+    "model_name" : "latest.pkl",
+    "image_patch_size" : "48-48-32",
+    "label_patch_size" : "44-44-28",
+    "image_patch_width" : 8,
+    "label_patch_width" : 4,
+    "is_label" : "No",
+    "kfold_list" : ["fold1", "fold2", "fold3"],
+    "num_array" : ["00"],
+    "gpu_ids" : "0",
+    "log_file" : "fail/createPatch.txt"
+}
+
