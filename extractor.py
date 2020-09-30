@@ -8,7 +8,7 @@ from itertools import product
 from functions import padding, cropping, clipping, caluculatePaddingSize, getImageWithMeta, createParentPath
 import re
 
-class Extractor():
+class extractor():
     """
     Class which Clips the input image and label to patch size.
     In 13 organs segmentation, unlike kidney cancer segmentation,
@@ -17,7 +17,7 @@ class Extractor():
     In this class we use simpleITK to clip mainly. Pay attention to the axis.
     
     """
-    def __init__(self, image, label, mask=None, image_patch_size=[48, 48, 16], label_patch_size=[48, 48, 16], overlap=None):
+    def __init__(self, image, label, mask=None, image_patch_size=[48, 48, 16], label_patch_size=[48, 48, 16], overlap=None, phase="train"):
         """
         image : original CT image
         label : original label image
@@ -25,12 +25,26 @@ class Extractor():
         image_patch_size : patch size for CT image.
         label_patch_size : patch size for label image.
         slide : When clipping, shit the clip position by slide
+        phase : train -> For training model, seg -> For segmentation
 
         """
         
         self.image = image
         self.label = label
-        self.mask = mask
+        if phase == "train":
+            self.label = label
+            self.mask = mask
+
+        elif phase == "segmentation":
+            self.mask = mask
+            if mask is not None:
+                self.label = mask
+
+        else:
+            print("[ERROR] Invalid phase : {}".format(phase))
+            sys.exit()
+
+        self.phase = phase
 
         """ patch_size = [z, y, x] """
         self.image_patch_size = np.array(image_patch_size)
@@ -108,7 +122,7 @@ class Extractor():
                             clipped_mask_array = sitk.GetArrayFromImage(clipped_mask)
 
                             """ If you feed mask image, you check if the image contains the masked part. If not, skip and set False to the check_mask array"""
-                            if (clipped_mask_array == 0).all(): 
+                            if self.phase == "train" and (clipped_mask_array == 0).all(): 
                                 pbar.update(1)
                                 continue
                       
