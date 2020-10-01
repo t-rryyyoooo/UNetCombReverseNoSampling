@@ -1,12 +1,16 @@
 import torch
 from torch import nn
-from utils import cropping3D
 from torchsummary import summary
-from model_part import CreateConvBlock, CreateUpConvBlock, CreateFinalBlock
+if __name__ == "__main__":
+    from utils import cropping3D
+    from model_part import CreateConvBlock, CreateUpConvBlock, CreateFinalBlock
+else:
+    from .utils import cropping3D
+    from .model_part import CreateConvBlock, CreateUpConvBlock, CreateFinalBlock
 
 class UNetCombReverseModel(nn.Module):
     def __init__(self, in_channel_main, in_channel_final, nclasses, use_bn=True, use_dropout=True):
-        super(UNetCombReverse, self).__init__()
+        super(UNetCombReverseModel, self).__init__()
         self.use_dropout = use_dropout
 
         self.contracts = []

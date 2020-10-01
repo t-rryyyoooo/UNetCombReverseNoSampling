@@ -11,13 +11,14 @@ from .utils import DICE
 from .loss import WeightedCategoricalCrossEntropy
 
 class UNetSystem(pl.LightningModule):
-    def __init__(self, dataset_path_list, criteria, in_channel, num_class, learning_rate, batch_size, checkpoint, num_workers):
+    def __init__(self, image_path_list, label_path, criteria, in_channel_main, in_channel_final, num_class, learning_rate, batch_size, checkpoint, num_workers):
         super(UNetSystem, self).__init__()
         use_cuda = torch.cuda.is_available() and True
         self.device = torch.device("cuda" if use_cuda else "cpu")
-        self.dataset_path_list = dataset_path_list
+        self.image_path_list = image_path_list
+        self.label_path = label_path
         self.num_class = num_class
-        self.model = UNetCombReverseModel(in_channel, self.num_class).to(self.device, dtype=torch.float)
+        self.model = UNetCombReverseModel(in_channel_main, in_channel_final, self.num_class).to(self.device, dtype=torch.float)
         self.criteria = criteria
         self.batch_size = batch_size
         self.learning_rate = learning_rate
@@ -26,14 +27,15 @@ class UNetSystem(pl.LightningModule):
         self.DICE = DICE(self.num_class, self.device)
         self.loss = WeightedCategoricalCrossEntropy(device=self.device)
 
-    def forward(self, x):
-        x = self.model(x)
+    def forward(self, x, x_final):
+        x = self.model(x, x_final)
 
         return x
 
     def training_step(self, batch, batch_idx):
         images, label = batch
         images = [image.to(self.device, dtype=torch.float) for image in images]
+        print(torch.isnan(images[0]).any(), torch.isnan(images[1]).any())
         label = label.to(self.device, dtype=torch.long)
 
         pred = self.forward(*images).to(self.device)
@@ -105,17 +107,12 @@ class UNetSystem(pl.LightningModule):
 
     @pl.data_loader
     def train_dataloader(self):
-        translate = 0.0
-        rotate = 0
-        shear = 0.0
-        scale = 0.0
-        batch_size = self.batch_size
-
         train_dataset = UNetDataset(
-                dataset_path_list = self.dataset_path_list, 
+                image_path_list = self.image_path_list,
+                label_path = self.label_path,
                 phase = "train", 
                 criteria = self.criteria,
-                transform = UNetTransform(self.num_class, translate, rotate, shear, scale)
+                transform = UNetTransform()
                 )
 
         train_loader = DataLoader(
@@ -130,10 +127,11 @@ class UNetSystem(pl.LightningModule):
     @pl.data_loader
     def val_dataloader(self):
         val_dataset = UNetDataset(
-                dataset_path_list = self.dataset_path_list, 
+                image_path_list = self.image_path_list,
+                label_path = self.label_path,
                 phase = "val", 
                 criteria = self.criteria,
-                transform = UNetTransform(self.num_class)
+                transform = UNetTransform()
                 )
 
         val_loader = DataLoader(

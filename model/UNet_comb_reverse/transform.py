@@ -1,28 +1,22 @@
-from .preprocessing import *
+if __name__ == "__main__":
+    from preprocessing import *
+else:
+    from .preprocessing import *
 
 class UNetTransform():
-    def __init__(self, classes, translate_range=0., rotate_range=0., shear_range=0., scale_range=0.):
-        self.translate_range = translate_range
-        self.rotate_range = rotate_range
-        self.shear_range = shear_range
-        self.scale_range = scale_range
-        self.classes = classes
-
+    def __init__(self):
         self.transforms = {
                 "train" : Compose([
-                    ReadImage(), 
-                    #AffineTransform(self.translate_range, self.rotate_range, self.shear_range, self.scale_range),
-                    GetArrayFromImage(self.classes)
+                    LoadNumpys(), 
                     ]), 
 
                 "val" : Compose([
-                    ReadImage(), 
-                    GetArrayFromImage(self.classes)
+                    LoadNumpys(), 
                     ])
                 }
 
-    def __call__(self, phase, image, label):
+    def __call__(self, phase, image_list, label):
 
-        return self.transforms[phase](image, label)
+        return self.transforms[phase](image_list, label)
 
 
