@@ -94,7 +94,7 @@ class FeatureMapCreater():
         upper_crop_size = np.array([0, upper_z_crop_size, 0, 0])
 
         """ Feed image_array_list to trained model. """
-        feature_map_list = [[None] for _ in range(self.num_channel)]
+        feature_map_list = [[] for _ in range(self.num_channel)]
         with tqdm(total=len(image_array_list), desc="Making feature maps...", ncols=60) as pbar:
             for image_array in image_array_list:
                 feature_map = self.getFeatureMapFromModel(image_array)
