@@ -17,6 +17,7 @@ def ParseArgs():
     parser.add_argument("--image_patch_size", help="48-48-16", default="48-48-16")
     parser.add_argument("--label_patch_size", help="48-48-16", default="48-48-16")
     parser.add_argument("--overlap", help="1", type=int)
+    parser.add_argument("--save_type", default="Array", help="Array or Image")
 
     args = parser.parse_args()
     return args
@@ -58,7 +59,7 @@ def main(args):
             )
 
     extractor.execute()
-    extractor.save(args.save_slice_path)
+    extractor.save(args.save_slice_path, kind=args.save_type)
 
 
 if __name__ == '__main__':

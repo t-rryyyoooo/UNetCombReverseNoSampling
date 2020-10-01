@@ -8,7 +8,7 @@ from itertools import product
 from functions import padding, cropping, clipping, caluculatePaddingSize, getImageWithMeta, createParentPath
 import re
 
-class extractor():
+class Extractor():
     """
     Class which Clips the input image and label to patch size.
     In 13 organs segmentation, unlike kidney cancer segmentation,
@@ -154,21 +154,43 @@ class extractor():
             print("[ERROR] Invalid kind : {}.".format(kind))
             sys.exit()
 
-    def save(self, save_path):
-        save_path = Path(save_path)
-        save_image_path = save_path / "dummy.mha"
+    def save(self, save_path, kind):
+        if kind == "Image":
+            save_path = Path(save_path)
+            save_image_path = save_path / "dummy.mha"
 
-        if not save_image_path.parent.exists():
-            createParentPath(str(save_image_path))
+            if not save_image_path.parent.exists():
+                createParentPath(str(save_image_path))
 
-        with tqdm(total=len(self.image_list), desc="Saving image and label...", ncols=60) as pbar:
-            for i, (image, label) in enumerate(zip(self.image_list, self.label_list)):
-                save_image_path = save_path / "image_{:04d}.mha".format(i)
-                save_label_path = save_path / "label_{:04d}.mha".format(i)
+            with tqdm(total=len(self.image_list), desc="Saving image and label as image...", ncols=60) as pbar:
+                for i, (image, label) in enumerate(zip(self.image_list, self.label_list)):
+                    save_image_path = save_path / "image_{:04d}.mha".format(i)
+                    save_label_path = save_path / "label_{:04d}.mha".format(i)
 
-                sitk.WriteImage(image, str(save_image_path), True)
-                sitk.WriteImage(label, str(save_label_path), True)
-                pbar.update(1)
+                    sitk.WriteImage(image, str(save_image_path), True)
+                    sitk.WriteImage(label, str(save_label_path), True)
+                    pbar.update(1)
+
+        if kind == "Array":
+            save_path = Path(save_path)
+            save_image_path = save_path / "dummy.npy"
+
+            if not save_image_path.parent.exists():
+                createParentPath(str(save_image_path))
+
+            with tqdm(total=len(self.image_array_list), desc="Saving image and label as array...", ncols=60) as pbar:
+                for i, (image_array, label_array) in enumerate(zip(self.image_array_list, self.label_array_list)):
+                    save_image_path = save_path / "image_{:04d}.npy".format(i)
+                    save_label_path = save_path / "label_{:04d}.npy".format(i)
+
+                    np.save(str(save_image_path), image_array)
+                    np.save(str(save_label_path), label_array)
+                    pbar.update(1)
+        
+        else:
+            print("[ERROR] Kind must be Image / Array.")
+            sys.exit()
+
 
 
 
