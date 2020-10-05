@@ -10,11 +10,12 @@ import cloudpickle
 import re
 
 
-def ParseArgs():
+def parseArgs():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("image_path", help="$HOME/Desktop/data/kits19/case_00000/imaging.nii.gz")
-    parser.add_argument("modelweightfile", help="Trained model weights file (*.pkl).")
+    parser.add_argument("model_file", help="Trained model weights file (*.pkl).")
+    parser.add_argument("model_file_for_fmc", help="Trained model weights file (*.pkl). for featureMapCreater")
     parser.add_argument("save_path", help="Segmented label file.(.mha)")
     parser.add_argument("--patch_size", default="512-512-8")
     parser.add_argument("--plane_size", default="512-512")
@@ -85,6 +86,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    args = ParseArgs()
+    args = parseArgs()
     main(args)
     

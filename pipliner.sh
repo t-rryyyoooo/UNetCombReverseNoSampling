@@ -21,82 +21,66 @@ fi
 readonly JSON_FILE="${INPUT_DIRECTORY}/${JSON_NAME}"
 
 # Training input
-readonly DATASET_PATH=$(eval echo $(cat ${JSON_FILE} | jq -r ".dataset_path"))
-dataset_path="${DATASET_PATH}/image"
-save_directory="${DATASET_PATH}/segmentation"
-
-readonly MODEL_SAVEPATH=$(eval echo $(cat ${JSON_FILE} | jq -r ".model_savepath"))
-readonly MODULE_NAME=$(cat ${JSON_FILE} | jq -r ".module_name")
-readonly SYSTEM_NAME=$(cat ${JSON_FILE} | jq -r ".system_name")
-readonly CHECKPOINT_NAME=$(cat ${JSON_FILE} | jq -r ".checkpoint_name")
-readonly LOG=$(eval echo $(cat ${JSON_FILE} | jq -r ".log"))
-readonly IN_CHANNEL=$(cat ${JSON_FILE} | jq -r ".in_channel")
+readonly IMAGE_PATH_1=$(cat ${JSON_FILE} | jq -r ".image_path_1")
+readonly IMAGE_PATH_2=$(cat ${JSON_FILE} | jq -r ".image_path_2")
+readonly LABEL_PATH=$(cat ${JSON_FILE} | jq -r ".label_path")
+readonly MODEL_SAVEPATH=$(cat ${JSON_FILE} | jq -r ".model_savepath")
+readonly TRAIN_LISTS=$(cat ${JSON_FILE} | jq -r ".train_lists")
+readonly VAL_LISTS=$(cat ${JSON_FILE} | jq -r ".val_lists")
+readonly LOG=$(cat ${JSON_FILE} | jq -r ".LOG")
+readonly IN_CHANNEL_MAIN=$(cat ${JSON_FILE} | jq -r ".in_channel_main")
+readonly IN_CHANNEL_FINAL=$(cat ${JSON_FILE} | jq -r ".in_channel_final")
 readonly NUM_CLASS=$(cat ${JSON_FILE} | jq -r ".num_class")
-readonly LEARNING_RATE=$(cat ${JSON_FILE} | jq -r ".learning_rate")
+readonly LR=$(cat ${JSON_FILE} | jq -r ".lr")
 readonly BATCH_SIZE=$(cat ${JSON_FILE} | jq -r ".batch_size")
-readonly NUM_WORKERS=$(cat ${JSON_FILE} | jq -r ".num_workers")
+readonly num_workers=$(cat ${JSON_FILE} | jq -r ".num_workers")
 readonly EPOCH=$(cat ${JSON_FILE} | jq -r ".epoch")
 readonly GPU_IDS=$(cat ${JSON_FILE} | jq -r ".gpu_ids")
-readonly API_KEY=$(cat ${JSON_FILE} | jq -r ".api_key")
+readonly api_keys=$(cat ${JSON_FILE} | jq -r ".api_keys")
 readonly PROJECT_NAME=$(cat ${JSON_FILE} | jq -r ".project_name")
 readonly EXPERIMENT_NAME=$(cat ${JSON_FILE} | jq -r ".experiment_name")
 
-# Segmentation input
-readonly DATA_DIRECTORY=$(eval echo $(cat ${JSON_FILE} | jq -r ".data_directory"))
-readonly MODEL_NAME=$(eval echo $(cat ${JSON_FILE} | jq -r ".model_name"))
-
-readonly PATCH_SIZE=$(cat ${JSON_FILE} | jq -r ".patch_size")
-readonly PLANE_SIZE=$(cat ${JSON_FILE} | jq -r ".plane_size")
-readonly OVERLAP=$(cat ${JSON_FILE} | jq -r ".overlap")
-readonly NUM_REP=$(cat ${JSON_FILE} | jq -r ".num_rep")
-readonly IMAGE_NAME=$(cat ${JSON_FILE} | jq -r ".image_name")
-readonly SAVE_NAME=$(cat ${JSON_FILE} | jq -r ".save_name")
-
-# Caluculation input
-readonly CSV_SAVEPATH=$(eval echo $(cat ${JSON_FILE} | jq -r ".csv_savepath"))
-readonly CLASS_LABEL=$(cat ${JSON_FILE} | jq -r ".class_label")
-readonly TRUE_NAME=$(cat ${JSON_FILE} | jq -r ".true_name")
-readonly PREDICT_NAME=$(cat ${JSON_FILE} | jq -r ".predict_name")
-
-
-readonly TRAIN_LISTS=$(cat ${JSON_FILE} | jq -r ".train_lists")
-readonly VAL_LISTS=$(cat ${JSON_FILE} | jq -r ".val_lists")
-readonly TEST_LISTS=$(cat ${JSON_FILE} | jq -r ".test_lists")
 readonly KEYS=$(cat ${JSON_FILE} | jq -r ".train_lists | keys[]")
 
+# Segmentation input
+readonly TEST_LISTS=$(cat ${JSON_FILE} | jq -r ".test_lists")
+
+ TEST_LIST=$(echo $TEST_LISTS | jq -r ".$key")
+ test_list=(${TEST_LIST// / })
 all_patients=""
+
 for key in ${KEYS[@]}
 do 
  echo $key
- TRAIN_LIST=$(echo $TRAIN_LISTS | jq -r ".$key")
- VAL_LIST=$(echo $VAL_LISTS | jq -r ".$key")
- TEST_LIST=$(echo $TEST_LISTS | jq -r ".$key")
- test_list=(${TEST_LIST// / })
+ train_list=$(echo $TRAIN_LISTS | jq -r ".$key")
+ val_list=$(echo $VAL_LISTS | jq -r ".$key")
+ image_path_2="${IMAGE_PATH_2}/${key}"
  model_savepath="${MODEL_SAVEPATH}/${key}"
  log="${LOG}/${key}"
  experiment_name="${EXPERIMENT_NAME}_${key}"
 
  echo "---------- Training ----------"
- echo "Dataset_path:${dataset_path}"
- echo "MODEL_SAVEPATH:${model_savepath}"
- echo "TRAIN_LIST:${TRAIN_LIST}"
- echo "VAL_LIST:${VAL_LIST}"
- echo "MODULE_NAME:${MODULE_NAME}"
- echo "SYSTEM_NAME:${SYSTEM_NAME}"
- echo "CHECKPOINT_NAME:${CHECKPOINT_NAME}"
- echo "LOG:${log}"
- echo "IN_CHANNEL:${IN_CHANNEL}"
+ echo "image_path_1:${IMAGE_PATH_1}"
+ echo "image_path_2:${image_path_2}"
+ echo "label_path:${LABEL_PATH}"
+ echo "model_savepath:${model_savepath}"
+ echo "train_list:${train_list}"
+ echo "val_list:${val_list}"
+ echo "log:${log}"
+ echo "IN_CHANNEL_MAIN:${IN_CHANNEL_MAIN}"
+ echo "IN_CHANNEL_FINAL:${IN_CHANNEL_FINAL}"
  echo "NUM_CLASS:${NUM_CLASS}"
- echo "LEARNING_RATE:${LEARNING_RATE}"
+ echo "LR:${LR}"
  echo "BATCH_SIZE:${BATCH_SIZE}"
  echo "NUM_WORKERS:${NUM_WORKERS}"
  echo "EPOCH:${EPOCH}"
  echo "GPU_IDS:${GPU_IDS}"
- echo "API_KEY:${API_KEY}"
+ echo "API_KEYS:${API_KEYS}"
  echo "PROJECT_NAME:${PROJECT_NAME}"
- echo "EXPERIMENT_NAME:${experiment_name}"
+ echo "EXPERIMENT_NAME:${EXPERIMENT_NAME}"
 
-#python3 train.py ${dataset_path} ${model_savepath} ${MODULE_NAME} ${SYSTEM_NAME} ${CHECKPOINT_NAME} --train_list ${TRAIN_LIST} --val_list ${VAL_LIST} --log ${log} --in_channel ${IN_CHANNEL} --num_class ${NUM_CLASS} --lr ${LEARNING_RATE} --batch_size ${BATCH_SIZE} --num_workers ${NUM_WORKERS} --epoch ${EPOCH} --gpu_ids ${GPU_IDS} --api_key ${API_KEY} --project_name ${PROJECT_NAME} --experiment_name ${experiment_name}
+ python3 train.py ${IMAGE_PATH_1} ${image_path_2} ${LABEL_PATH} ${model_savepath} --train_list ${train_list} --val_list ${val_list} --log ${log} --in_channel_main ${IN_CHANNEL_MAIN} --in_channel_final ${IN_CHANNEL_FINAL} --num_class ${NUM_CLASS} --lr ${LR} --batch_size ${BATCH_SIZE} --num_workers ${NUM_WORKERS} --epoch ${EPOCH} --gpu_ids ${GPU_IDS} --api_keys ${API_KEYS} --project_name ${PROJECT_NAME} --experiment_name ${EXPERIMENT_NAME}
+
 
  if [ $? -ne 0 ];then
   exit 1
